@@ -1,0 +1,135 @@
+.navbar-brand {
+    font-weight: bold;
+}
+.gradient-background {
+    background: linear-gradient(90deg, #5e4bb5 0%, #2f5df3 40%, #3bbfc0 100%);
+}
+
+.navbar-nav .nav-item:last-child {
+    border-right: none;
+}
+#logoImg {
+    width: 30px;  /* 원래 의도했던 크기로 보임 */
+    height: 25px;
+    object-fit: contain;  /* 이미지 비율 유지 */
+}
+
+@media (max-width: 768px) {
+    .navbar-nav {
+        flex-direction: row;
+        justify-content: space-between;
+    }
+
+    .navbar-nav .nav-item {
+        margin-right: 0.5rem;
+    }
+}
+#username{
+    z-index: 100;
+    color: white;
+    font-weight: bold;
+    font-size: 20px;
+}
+.nav-link{
+    font-size: 20px;
+}
+
+/* 챗봇 UI */
+#chat-icon {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    background-color: #007bff;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 1000;
+}
+
+#chat-icon i {
+    color: white;
+    font-size: 24px;
+}
+
+#chat-container {
+    position: fixed;
+    bottom: 90px;
+    right: 20px;
+    width: 300px;
+    height: 500px;
+    background-color: #f0f0f0;
+    border-radius: 20px;
+    display: none;
+    flex-direction: column;
+    z-index: 1000;
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+#chat-header {
+    background-color: #007bff;
+    color: white;
+    padding: 15px;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#chat-messages {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+.message {
+    max-width: 70%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 20px;
+    word-wrap: break-word;
+}
+
+.user-message {
+    align-self: flex-end;
+    background-color: #007bff;
+    color: white;
+}
+
+.ai-message {
+    align-self: flex-start;
+    background-color: #e9e9eb;
+    color: black;
+}
+
+#chat-input {
+    display: flex;
+    padding: 10px;
+    background-color: white;
+}
+
+#user-input {
+    flex-grow: 1;
+    border: none;
+    outline: none;
+    padding: 10px;
+    border-radius: 20px;
+    margin-right: 10px;
+}
+
+#send-button {
+    background-color: transparent;
+    border: none;
+    color: #007bff;
+    cursor: pointer;
+}
+
+#send-button i {
+    font-size: 24px;
+}

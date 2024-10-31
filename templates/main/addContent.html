@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Content</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/index.css">
+    <link rel="stylesheet" href="/css/addContent.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="/js/main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
+</head>
+<body>
+<!-- Header -->
+<header id="header">
+    <h1><a href="/">FASTNET</a></h1>
+    <nav class="links">
+        <ul>
+            <li><a href="/spikes">Add Content</a></li>
+            <li class="search">
+                <input type="text" id="search_box" placeholder="Search" />
+                <button id="search-btn">🔍︎</button>
+            </li>
+        </ul>
+    </nav>
+    <nav class="main">
+        <ul>
+            <li><a href="/user/profile" onclick="getMyPage()">Profile</a></li>
+            <li><a href="javascript:logout()">logout</a></li>
+        </ul>
+    </nav>
+</header>
+<main>
+    <form id="content-form">
+
+        <label for="title">Title</label>
+        <input type="text" id="title" name="title" required>
+
+        <label for="content">Content</label>
+        <textarea id="content" name="content" required></textarea>
+
+        <label for="image-upload">Attach images (max 3)</label>
+        <input type="file" id="image-upload" name="images" accept="image/*" multiple onchange="previewImages()">
+        <div id="image-names" class="file-names"><p>No images chosen yet</p></div>
+
+        <label for="video-upload">Attach videos (max 3)</label>
+        <input type="file" id="video-upload" name="videos" accept="video/*" multiple onchange="previewVideos()">
+        <div id="video-names" class="file-names"><p>No videos chosen yet</p></div>
+
+        <div id="preview-container" class="preview-container">
+            <p>No file chosen yet</p>
+        </div>
+
+        <button type="button" id="addBtn" onclick="submitForm()">Add</button>
+        <button type="button" id="cancelBtn" onclick="window.location.href='/'">Cancel</button>
+    </form>
+</main>
+
+<script>
+    let currentPreviewIndex = 0;
+    const previews = [];
+
+    function previewImages() {
+        const files = $('#image-upload')[0].files;
+        if (files.length > 3) {
+            alert('You can upload up to 3 images.');
+            $('#image-upload').val('');
+            return;
+        }
+        displayFileNames(files, 'image-names');
+        updatePreviews(files, 'image');
+    }
+
+    function previewVideos() {
+        const files = $('#video-upload')[0].files;
+        if (files.length > 3) {
+            alert('You can upload up to 3 videos.');
+            $('#video-upload').val('');
+            return;
+        }
+        displayFileNames(files, 'video-names');
+        updatePreviews(files, 'video');
+    }
+
+    function displayFileNames(files, containerId) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = '';
+        for (let i = 0; i < files.length; i++) {
+            const p = document.createElement('p');
+            p.textContent = files[i].name;
+            container.appendChild(p);
+        }
+    }
+
+    function updatePreviews(files, type) {
+        previews.length = 0;
+        currentPreviewIndex = 0;
+        const previewContainer = document.getElementById('preview-container');
+        previewContainer.innerHTML = '';
+
+        for (let i = 0; i < files.length; i++) {
+            const reader = new FileReader();
+            reader.onloadend = function() {
+                previews.push({ src: reader.result, type: files[i].type });
+                if (i === files.length - 1) {
+                    showPreview(0);
+                }
+            }
+            reader.readAsDataURL(files[i]);
+        }
+    }
+
+    function showPreview(index) {
+        const previewContainer = document.getElementById('preview-container');
+        const preview = previews[index];
+        if (preview.type.startsWith('image/')) {
+            previewContainer.innerHTML = '<img src="' + preview.src + '" alt="Image preview">';
+        } else if (preview.type.startsWith('video/')) {
+            previewContainer.innerHTML = '<video controls><source src="' + preview.src + '" type="' + preview.type + '"></video>';
+        }
+        updateNavigationButtons();
+    }
+
+    function updateNavigationButtons() {
+        const previewContainer = document.getElementById('preview-container');
+        const navigationContainer = document.createElement('div');
+        navigationContainer.className = 'navigation-container';
+
+        if (currentPreviewIndex > 0) {
+            const prevButton = document.createElement('button');
+            prevButton.innerText = 'Previous';
+            prevButton.onclick = () => showPreview(currentPreviewIndex - 1);
+            navigationContainer.appendChild(prevButton);
+        }
+
+        if (currentPreviewIndex < previews.length - 1) {
+            const nextButton = document.createElement('button');
+            nextButton.innerText = 'Next';
+            nextButton.onclick = () => showPreview(currentPreviewIndex + 1);
+            navigationContainer.appendChild(nextButton);
+        }
+
+        previewContainer.appendChild(navigationContainer);
+    }
+
+    function submitForm() {
+        const formData = new FormData(document.getElementById('content-form'));
+
+        // Remove empty image and video fields
+        const imageFiles = document.getElementById('image-upload').files;
+        const videoFiles = document.getElementById('video-upload').files;
+        if (imageFiles.length === 0) {
+            formData.delete('images');
+        }
+        if (videoFiles.length === 0) {
+            formData.delete('videos');
+        }
+
+        $.ajax({
+            url: '/spikes',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                alert('Content added successfully!');
+                window.location.href = '/';
+            },
+            error: function(xhr, status, error) {
+                alert('Failed to add content: ' + xhr.responseText);
+            }
+        });
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,84 @@
+
+.modify-container {
+    margin-top: 5%;
+    max-width: 800px;
+}
+
+.panel {
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.panel-heading {
+    background-color: #4CAF50 !important;
+    color: white !important;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+.signup-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.panel-body {
+    padding: 2rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem; /* 아이디와 비밀번호 입력란 사이 간격 조정 */
+}
+
+.input-group {
+    display: flex;
+    align-items: center;
+}
+
+.input-group-addon {
+    background-color: #f4f4f9;
+    border: 1px solid #ccc; /* 테두리 추가 */
+    color: #4CAF50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 34px;
+    border-right: 0; /* 오른쪽 테두리 제거 */
+    border-radius: 4px; /* 전체 테두리 둥글게 설정 */
+    margin-right: -1px; /* 아이콘과 입력창 사이 간격 추가 */
+}
+
+.input-group .form-control {
+    border: 1px solid #ccc; /* 테두리 추가 */
+    border-left: 0; /* 왼쪽 테두리 제거 */
+    border-radius: 4px; /* 전체 테두리 둥글게 설정 */
+}
+
+.input-group .form-control:focus {
+    box-shadow: none;
+}
+
+.input-group-btn .btn {
+    border-radius: 4px;
+    margin-left: -1px;
+}
+
+.btn-primary {
+    background-color: #4CAF50;
+    border-color: #4CAF50;
+}
+
+.btn-primary:hover {
+    background-color: #45a049;
+    border-color: #45a049;
+}
+
+.btn-default {
+    background-color: #f4f4f9;
+    border-color: #ccc;
+}
+
+.btn-default:hover {
+    background-color: #e4e4e9;
+    border-color: #bbb;
+}
