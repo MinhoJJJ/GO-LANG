@@ -1,77 +1,72 @@
-// handlers/login.go
 package handlers
 
 import (
-"database/sql"
-	"fmt"
+	"database/sql"
 	"html/template"
-"log"
-"net/http"
+	"log"
+	"net/http"
 )
 
-type LoginHandler struct {
-	db *sql.DB
-}
-
+// LoginData stores the login form data and potential error messages
 type LoginData struct {
 	ID       string
 	Password string
 	Error    string
 }
 
-// NewLoginHandler 생성자 함수
-func NewLoginHandler(db *sql.DB) *LoginHandler {
-	return &LoginHandler{db: db}
-}
-
-// ServeHTTP implements http.Handler
-func (h *LoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+// LoginHandler handles all login-related requests
+func LoginHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	if r.Method == http.MethodPost {
-		h.handlePost(w, r)
+		// 폼에서 전송된 데이터 받기
+		id := r.FormValue("id")
+		password := r.FormValue("password")
+
+		// 데이터베이스에서 사용자 확인
+		var dbPassword string
+		err := db.QueryRow("SELECT password FROM USER_INFO WHERE id = $1", id).Scan(&dbPassword)
+
+		switch {
+		case err == sql.ErrNoRows:
+			// 사용자가 존재하지 않는 경우
+			data := LoginData{
+				ID:    id,
+				Error: "아이디가 존재하지 않습니다.",
+			}
+			renderTemplate(w, "login.html", data)
+			return
+		case err != nil:
+			// 데이터베이스 오류
+			log.Printf("Database error: %v", err)
+			data := LoginData{
+				ID:    id,
+				Error: "시스템 오류가 발생했습니다. 잠시 후 다시 시도해주세요.",
+			}
+			renderTemplate(w, "login.html", data)
+			return
+		}
+
+		// 비밀번호 검증
+		if password == dbPassword { // 실제로는 암호화된 비밀번호를 비교해야 합니다!
+			// 로그인 성공
+			http.Redirect(w, r, "/", http.StatusSeeOther)
+			return
+		}
+
+		// 비밀번호가 일치하지 않는 경우
+		data := LoginData{
+			ID:    id,
+			Error: "비밀번호가 올바르지 않습니다.",
+		}
+		renderTemplate(w, "login.html", data)
 	} else {
-		h.handleGet(w, r)
+		// GET 요청 시 빈 로그인 폼 표시
+		data := LoginData{}
+		renderTemplate(w, "login.html", data)
 	}
 }
 
-func (h *LoginHandler) handlePost(w http.ResponseWriter, r *http.Request) {
-	id := r.FormValue("id")
-	password := r.FormValue("password")
-
-	var dbPassword string
-	err := h.db.QueryRow("SELECT password FROM USER_INFO WHERE id = $1", id).Scan(&dbPassword)
-
-	switch {
-	case err == sql.ErrNoRows:
-		h.renderTemplate(w, "login.html", LoginData{
-			ID:    id,
-			Error: "아이디가 존재하지 않습니다.",
-		})
-		return
-	case err != nil:
-		log.Printf("Database error: %v", err)
-		h.renderTemplate(w, "login.html", LoginData{
-			ID:    id,
-			Error: "시스템 오류가 발생했습니다. 잠시 후 다시 시도해주세요.",
-		})
-		return
-	}
-
-	if password == dbPassword {
-		http.Redirect(w, r, "/", http.StatusSeeOther)
-		return
-	}
-
-	h.renderTemplate(w, "login.html", LoginData{
-		ID:    id,
-		Error: "비밀번호가 올바르지 않습니다.",
-	})
-}
-
-func (h *LoginHandler) handleGet(w http.ResponseWriter, r *http.Request) {
-	h.renderTemplate(w, "login.html", LoginData{})
-}
-
-func (h *LoginHandler) renderTemplate(w http.ResponseWriter, filename string, data interface{}) {
+// renderTemplate handles template rendering
+func renderTemplate(w http.ResponseWriter, filename string, data interface{}) {
 	tmpl, err := template.ParseFiles("templates/" + filename)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -81,31 +76,5 @@ func (h *LoginHandler) renderTemplate(w http.ResponseWriter, filename string, da
 	err = tmpl.Execute(w, data)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-}
-
-// handlers/index.go
-package handlers
-
-import (
-"fmt"
-"net/http"
-)
-
-type IndexHandler struct{}
-
-func NewIndexHandler() *IndexHandler {
-	return &IndexHandler{}
-}
-
-func (h *IndexHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/" {
-		http.NotFound(w, r)
-		return
-	}
-
-	_, err := fmt.Fprint(w, "Hello, World!")
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
 	}
 }

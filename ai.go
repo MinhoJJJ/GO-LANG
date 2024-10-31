@@ -1,30 +1,18 @@
 package main
 
 import (
+	"AI/config"
+	"AI/handlers" // 모듈화
 	"database/sql"
 	"fmt"
-	_ "github.com/lib/pq"
 	"html/template"
 	"log"
 	"mime"
 	"net/http"
 	"os"
 	"path/filepath"
-)
 
-type LoginData struct {
-	ID       string
-	Password string
-	Error    string // 에러 메시지용
-}
-
-// 데이터베이스 연결 정보
-const (
-	host     = "localhost"
-	port     = 5432
-	user     = "minho"
-	password = "1234"
-	dbname   = "smartOrder"
+	_ "github.com/lib/pq"
 )
 
 // 데이터베이스 연결을 위한 전역 변수
@@ -33,24 +21,15 @@ var db *sql.DB
 // :=는 Go 언어에서 변수를 선언하고 동시에 값을 할당하는 단축 문법입니다.
 func main() {
 
-	// 데이터베이스 연결 문자열
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
-		host, port, user, password, dbname)
-
-	// 데이터베이스 연결
+	// 데이터베이스 초기화
 	var err error
-	db, err = sql.Open("postgres", psqlInfo)
+
+	db, err = config.InitDB()
+
 	if err != nil {
 		log.Fatal("Error connecting to the database:", err)
 	}
 	defer db.Close()
-
-	// 데이터베이스 연결 테스트
-	err = db.Ping()
-	if err != nil {
-		log.Fatal("Error pinging database:", err)
-	}
-	log.Println("Successfully connected to database")
 
 	// MIME 타입 등록
 	// MIME 타입은 파일의 "설명서" 같은 것입니다
@@ -67,8 +46,13 @@ func main() {
 	// 이렇게 등록된 핸들러들은 DefaultServeMux에서 관리됨
 	http.HandleFunc("/", indexHandler)
 	http.HandleFunc("/about", aboutHandler)
-	http.HandleFunc("/login", loginHandler)
-	http.HandleFunc("/login.do", loginHandler)
+	// HandleFunc 등록 부분을 다음과 같이 수정:
+	http.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
+		handlers.LoginHandler(w, r, db)
+	})
+	http.HandleFunc("/login.do", func(w http.ResponseWriter, r *http.Request) {
+		handlers.LoginHandler(w, r, db)
+	})
 
 	// 포트 설정
 	port := os.Getenv("PORT") // 포트에 대한 환경변수 값을 불러옴
@@ -145,56 +129,6 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 
 func aboutHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "<h1>About Page</h1><p>This is a simple Go-based HTTP server.</p>")
-}
-
-func loginHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodPost {
-		// 폼에서 전송된 데이터 받기
-		id := r.FormValue("id")
-		password := r.FormValue("password")
-
-		// 데이터베이스에서 사용자 확인
-		var dbPassword string
-		err := db.QueryRow("SELECT password FROM USER_INFO WHERE id = $1", id).Scan(&dbPassword)
-
-		switch {
-		case err == sql.ErrNoRows:
-			// 사용자가 존재하지 않는 경우
-			data := LoginData{
-				ID:    id,
-				Error: "아이디가 존재하지 않습니다.",
-			}
-			renderTemplate(w, "login.html", data)
-			return
-		case err != nil:
-			// 데이터베이스 오류
-			log.Printf("Database error: %v", err)
-			data := LoginData{
-				ID:    id,
-				Error: "시스템 오류가 발생했습니다. 잠시 후 다시 시도해주세요.",
-			}
-			renderTemplate(w, "login.html", data)
-			return
-		}
-
-		// 비밀번호 검증
-		if password == dbPassword { // 실제로는 암호화된 비밀번호를 비교해야 합니다!
-			// 로그인 성공
-			http.Redirect(w, r, "/", http.StatusSeeOther)
-			return
-		}
-
-		// 비밀번호가 일치하지 않는 경우
-		data := LoginData{
-			ID:    id,
-			Error: "비밀번호가 올바르지 않습니다.",
-		}
-		renderTemplate(w, "login.html", data)
-	} else {
-		// GET 요청 시 빈 로그인 폼 표시
-		data := LoginData{}
-		renderTemplate(w, "login.html", data)
-	}
 }
 
 func renderTemplate(w http.ResponseWriter, filename string, data interface{}) {
