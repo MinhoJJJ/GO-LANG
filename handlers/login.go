@@ -19,6 +19,7 @@ type LoginData struct {
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	db := config.GetDB()
+
 	if db == nil {
 		log.Println("Database connection is nil in LoginHandler")
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -57,7 +58,8 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		// 비밀번호 검증
 		if password == dbPassword { // 실제로는 암호화된 비밀번호를 비교해야 합니다!
 			// 로그인 성공
-			http.Redirect(w, r, "/", http.StatusSeeOther)
+			log.Printf("성공함")
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
 			return
 		}
 
