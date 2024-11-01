@@ -14,7 +14,6 @@ type LoginData struct {
 	Error    string
 }
 
-// LoginHandler handles all login-related requests
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	db := config.GetDB()
