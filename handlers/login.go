@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"AI/config"
 	"database/sql"
 	"html/template"
 	"log"
@@ -15,7 +16,15 @@ type LoginData struct {
 }
 
 // LoginHandler handles all login-related requests
-func LoginHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+func LoginHandler(w http.ResponseWriter, r *http.Request) {
+
+	db := config.GetDB()
+	if db == nil {
+		log.Println("Database connection is nil in LoginHandler")
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
 	if r.Method == http.MethodPost {
 		// 폼에서 전송된 데이터 받기
 		id := r.FormValue("id")

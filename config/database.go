@@ -8,6 +8,9 @@ import (
 	_ "github.com/lib/pq"
 )
 
+// 데이터베이스 연결을 위한 전역 변수
+var db *sql.DB
+
 // DBConfig holds database configuration
 type DBConfig struct {
 	Host     string
@@ -50,7 +53,16 @@ func NewDBFromConfig(config *DBConfig) (*sql.DB, error) {
 	return db, nil
 }
 
-// InitDB initializes database with default configuration
 func InitDB() (*sql.DB, error) {
-	return NewDBFromConfig(GetDefaultDBConfig())
+	var err error
+	db, err = NewDBFromConfig(GetDefaultDBConfig()) // 전역 변수 db에 할당
+	return db, err
+}
+
+// DB 인스턴스를 가져오는 함수
+func GetDB() *sql.DB {
+	if db == nil {
+		log.Fatal("Database connection is nil")
+	}
+	return db
 }
