@@ -1,6 +1,7 @@
 package config
 
 import (
+	"AI/models"
 	"database/sql"
 	"fmt"
 	"log"
@@ -11,18 +12,8 @@ import (
 // 데이터베이스 연결을 위한 전역 변수
 var db *sql.DB
 
-// DBConfig holds database configuration
-type DBConfig struct {
-	Host     string
-	Port     int
-	User     string
-	Password string
-	DBName   string
-}
-
-// GetDefaultDBConfig returns the default database configuration
-func GetDefaultDBConfig() *DBConfig {
-	return &DBConfig{
+func GetDefaultDBConfig() *models.DBConfig {
+	return &models.DBConfig{
 		Host:     "localhost",
 		Port:     5432,
 		User:     "minho",
@@ -31,8 +22,7 @@ func GetDefaultDBConfig() *DBConfig {
 	}
 }
 
-// NewDBFromConfig creates a new database connection from configuration
-func NewDBFromConfig(config *DBConfig) (*sql.DB, error) {
+func NewDBFromConfig(config *models.DBConfig) (*sql.DB, error) {
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 		config.Host, config.Port, config.User, config.Password, config.DBName)
 
