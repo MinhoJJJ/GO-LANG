@@ -15,7 +15,6 @@ import (
 // 우편물에 "취급주의" 스티커를 붙이는 것처럼, 파일에 "이건 CSS파일이에요"라는 표시를 해주는 것입니다
 // 이 표시가 없으면 브라우저는 보안상의 이유로 파일을 원하는 방식으로 처리하지 않습니다
 
-// InitMimeTypes initializes MIME type mappings
 func InitMimeTypes() {
 	// 기본 MIME 타입 등록
 	mime.AddExtensionType(".css", "text/css")
@@ -27,7 +26,7 @@ func InitMimeTypes() {
 
 func AddMimeTypeHandler(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ext := filepath.Ext(r.URL.Path)
+		ext := filepath.Ext(r.URL.Path) //경로의 마지막 요소에서 확장자를 반환합니다.
 
 		switch ext {
 		case ".css":
@@ -41,6 +40,6 @@ func AddMimeTypeHandler(next http.Handler) http.Handler {
 			// ... 필요한 MIME 타입 추가
 		}
 
-		next.ServeHTTP(w, r)
+		next.ServeHTTP(w, r) // HTTP 요청을 다음 핸들러로 전달하는 역할을 합니다. 현재 핸들러에서 요청을 처리한 후, 다음 핸들러로 넘겨주는 기능을 제공합니다.
 	})
 }
