@@ -2,7 +2,7 @@ package router
 
 import (
 	"AI/handlers"
-	"net/http"
+	"github.com/gin-gonic/gin"
 )
 
 // GO의 라우트 역할
@@ -17,17 +17,15 @@ import (
 // http.StripPrefix("/static/", fileServer)는 요청 경로에서 /static/을 제거하고 나머지 경로를 fileServer에 전달합니다.
 // 예를 들어, 클라이언트가 /static/js/app.js에 접근하면, 실제 파일 서버는 static/js/app.js 경로를 찾습니다.
 
-func InitRoutes() {
+func InitRoutes(r *gin.Engine) {
 	// 정적 파일 라우트
-	fileServer := http.FileServer(http.Dir("static"))
-	http.Handle("/static/", http.StripPrefix("/static/", fileServer))
-
-	initAuthRoutes()
-
+	r.Static("/static", "./static")
+	initAuthRoutes(r)
 }
 
-func initAuthRoutes() {
-	http.HandleFunc("/login", handlers.LoginHandler)
-	http.HandleFunc("/login.do", handlers.LoginHandler)
-
+// 인증 관련 라우트 설정
+func initAuthRoutes(r *gin.Engine) {
+	// 로그인 관련 라우트
+	r.GET("/login", handlers.LoginHandler)
+	r.POST("/login.do", handlers.LoginHandler)
 }

@@ -4,6 +4,8 @@ import (
 	"mime"
 	"net/http"
 	"path/filepath"
+
+	"github.com/gin-gonic/gin"
 )
 
 // MIME 타입을 설정하는 미들웨어
@@ -15,14 +17,54 @@ import (
 // 우편물에 "취급주의" 스티커를 붙이는 것처럼, 파일에 "이건 CSS파일이에요"라는 표시를 해주는 것입니다
 // 이 표시가 없으면 브라우저는 보안상의 이유로 파일을 원하는 방식으로 처리하지 않습니다
 
-func InitMimeTypes() {
+// InitMimeTypes MIME 타입 및 템플릿 초기화
+func InitMimeTypes(r *gin.Engine) error {
+	// 기존 MIME 타입 초기화 코드...
+
+	// HTML 템플릿 로드
 	// 기본 MIME 타입 등록
 	mime.AddExtensionType(".css", "text/css")
 	mime.AddExtensionType(".js", "application/javascript")
 	mime.AddExtensionType(".html", "text/html")
 	mime.AddExtensionType(".json", "application/json")
-	// ... 필요한 MIME 타입 추가
+	mime.AddExtensionType(".png", "image/png")
+	mime.AddExtensionType(".jpg", "image/jpeg")
+	mime.AddExtensionType(".jpeg", "image/jpeg")
+	mime.AddExtensionType(".gif", "image/gif")
+	mime.AddExtensionType(".svg", "image/svg+xml")
+	mime.AddExtensionType(".xml", "application/xml")
+	mime.AddExtensionType(".pdf", "application/pdf")
+	mime.AddExtensionType(".zip", "application/zip")
+	mime.AddExtensionType(".ttf", "font/ttf")
+	mime.AddExtensionType(".woff", "font/woff")
+	mime.AddExtensionType(".woff2", "font/woff2")
+	mime.AddExtensionType(".eot", "application/vnd.ms-fontobject")
+	mime.AddExtensionType(".ico", "image/x-icon")
+	mime.AddExtensionType(".txt", "text/plain")
+	mime.AddExtensionType(".csv", "text/csv")
+	mime.AddExtensionType(".mp4", "video/mp4")
+	mime.AddExtensionType(".webm", "video/webm")
+	mime.AddExtensionType(".mp3", "audio/mpeg")
+	mime.AddExtensionType(".wav", "audio/wav")
+	mime.AddExtensionType(".xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+	mime.AddExtensionType(".docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+	mime.AddExtensionType(".pptx", "application/vnd.openxmlformats-officedocument.presentationml.presentation")
+
+	// HTML 템플릿 로드
+	templatePath := filepath.Join("templates", "*.html")
+	r.LoadHTMLGlob(templatePath)
+
+	return nil
 }
+
+// func InitMimeTypes() {
+// 	// 기본 MIME 타입 등록
+// 	mime.AddExtensionType(".css", "text/css")
+// 	mime.AddExtensionType(".js", "application/javascript")
+// 	mime.AddExtensionType(".html", "text/html")
+// 	mime.AddExtensionType(".json", "application/json")
+// 	// ... 필요한 MIME 타입 추가
+// }
 
 func AddMimeTypeHandler(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
