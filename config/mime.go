@@ -2,7 +2,6 @@ package config
 
 import (
 	"mime"
-	"net/http"
 	"path/filepath"
 
 	"github.com/gin-gonic/gin"
@@ -19,9 +18,7 @@ import (
 
 // InitMimeTypes MIME 타입 및 템플릿 초기화
 func InitMimeTypes(r *gin.Engine) error {
-	// 기존 MIME 타입 초기화 코드...
 
-	// HTML 템플릿 로드
 	// 기본 MIME 타입 등록
 	mime.AddExtensionType(".css", "text/css")
 	mime.AddExtensionType(".js", "application/javascript")
@@ -57,14 +54,16 @@ func InitMimeTypes(r *gin.Engine) error {
 	return nil
 }
 
-// func InitMimeTypes() {
-// 	// 기본 MIME 타입 등록
-// 	mime.AddExtensionType(".css", "text/css")
-// 	mime.AddExtensionType(".js", "application/javascript")
-// 	mime.AddExtensionType(".html", "text/html")
-// 	mime.AddExtensionType(".json", "application/json")
-// 	// ... 필요한 MIME 타입 추가
-// }
+// GIN FRAMWORK 사용 전 MIME 등록 방식
+/*
+func InitMimeTypes() {
+	// 기본 MIME 타입 등록
+	mime.AddExtensionType(".css", "text/css")
+	mime.AddExtensionType(".js", "application/javascript")
+	mime.AddExtensionType(".html", "text/html")
+	mime.AddExtensionType(".json", "application/json")
+	// ... 필요한 MIME 타입 추가
+}
 
 func AddMimeTypeHandler(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -85,3 +84,6 @@ func AddMimeTypeHandler(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r) // HTTP 요청을 다음 핸들러로 전달하는 역할을 합니다. 현재 핸들러에서 요청을 처리한 후, 다음 핸들러로 넘겨주는 기능을 제공합니다.
 	})
 }
+
+
+*/

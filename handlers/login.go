@@ -2,18 +2,23 @@ package handlers
 
 import (
 	"database/sql"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 // LoginHandler Gin 컨텍스트를 사용하는 로그인 핸들러
-func LoginHandler(c *gin.Context) {
+// 포인터(pointer)를 사용하여 gin.Context 객체를 함수의 매개변수로 전달
+func LoginHandler(c *gin.Context) { // c는 gin.Context 객체를 가리키는 포인터입니다.
 	// POST 요청인 경우 (login.do)
 	if c.Request.Method == http.MethodPost {
 		// 로그인 폼 데이터 받기
-		username := c.PostForm("username")
+		username := c.PostForm("id")
 		password := c.PostForm("password")
+
+		log.Println("username: " + username)
+		log.Println("password: " + password)
 
 		// 입력값 검증
 		if username == "" || password == "" {
@@ -23,14 +28,16 @@ func LoginHandler(c *gin.Context) {
 			})
 			return
 		}
-
 		// DB 연결 가져오기
 		db := c.MustGet("db").(*sql.DB)
 
 		// 사용자 인증 로직
 		var storedPassword string
-		var userID int
-		err := db.QueryRow("SELECT id, password FROM users WHERE username = ?", username).Scan(&userID, &storedPassword)
+		var userID string
+		err := db.QueryRow("SELECT id,password FROM user_info WHERE id = $1", username).Scan(&userID, &storedPassword)
+
+		// 디버깅을 위한 로그
+		log.Printf("Query execution - error: %v", err)
 
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusUnauthorized, gin.H{
@@ -53,6 +60,9 @@ func LoginHandler(c *gin.Context) {
 				"message": "로그인 성공",
 				"user_id": userID,
 			})
+			c.HTML(http.StatusOK, "main.html", gin.H{
+				"title": "로그인 페이지",
+			})
 			return
 		}
 
@@ -63,7 +73,7 @@ func LoginHandler(c *gin.Context) {
 		return
 	}
 
-	// GET 요청인 경우 (/login)
+	// GET 요청인 경우 (/)
 	// HTML 템플릿 렌더링
 	c.HTML(http.StatusOK, "login.html", gin.H{
 		"title": "로그인 페이지",
@@ -127,4 +137,14 @@ func LoginHandler(c *gin.Context) {
 // 		data := models.LoginData{} // 구조체 사용
 // 		RenderTemplate(w, "login.html", data)
 // 	}
+// }
+// config 패키지를 통해 DB 연결 가져오기
+// db := config.GetDB()
+// if db == nil {
+// 	log.Println("Database connection is nil in LoginHandler")
+// 	c.JSON(http.StatusInternalServerError, gin.H{
+// 		"status":  "error",
+// 		"message": "데이터베이스 연결 오류",
+// 	})
+// 	return
 // }

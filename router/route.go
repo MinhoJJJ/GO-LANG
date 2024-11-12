@@ -2,6 +2,8 @@ package router
 
 import (
 	"AI/handlers"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -26,6 +28,12 @@ func InitRoutes(r *gin.Engine) {
 // 인증 관련 라우트 설정
 func initAuthRoutes(r *gin.Engine) {
 	// 로그인 관련 라우트
-	r.GET("/login", handlers.LoginHandler)
+	r.GET("/", handlers.LoginHandler)
 	r.POST("/login.do", handlers.LoginHandler)
+	// main.html 페이지 라우트
+	r.GET("/main.html", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "main.html", gin.H{
+			"title": "메인 페이지",
+		})
+	})
 }

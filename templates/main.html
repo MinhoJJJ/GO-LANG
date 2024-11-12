@@ -1,28 +1,28 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>가계부</title>
-    <link rel="stylesheet" type="text/css" th:href="@{/static/css/main.css}" />
+    <link rel="stylesheet" type="text/css" href="/static/css/main.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="/static/js/main.js" type="text/javascript"></script>
 </head>
 <body>
 <header>
-    <h1 th:text="#{main.expenseTracker}"></h1>
+    <h1>{{.messages.main.expenseTracker}}</h1>
     <nav>
         <ul>
-            <li><a href="main.do" th:text="#{header.main}"></a></li>
-            <li><a href="transaction.do" th:text="#{header.transaction}"></a></li>
-            <li><a href="report.do" th:text="#{header.report}"></a></li>
-            <li><a href="totalList.do" th:text="#{header.totalList}"></a></li>
-            <li><a href="setting.do" th:text="#{header.setting}" ></a></li>
+            <li><a href="/main">{{.messages.header.main}}</a></li>
+            <li><a href="/transaction">{{.messages.header.transaction}}</a></li>
+            <li><a href="/report">{{.messages.header.report}}</a></li>
+            <li><a href="/total-list">{{.messages.header.totalList}}</a></li>
+            <li><a href="/setting">{{.messages.header.setting}}</a></li>
         </ul>
     </nav>
     <div id="user-info">
-        <button id="modify-button" onclick="location.href='modify.do';">정보 수정</button>
-        <button id="logout-button" onclick="location.href='/logout.do'">로그아웃</button>
+        <button id="modify-button" onclick="location.href='/modify';">정보 수정</button>
+        <button id="logout-button" onclick="location.href='/logout'">로그아웃</button>
     </div>
 </header>
 <main>
@@ -31,15 +31,15 @@
         <div class="summary-box">
             <div class="summary-item">
                 <h3>총 수입</h3>
-                <p>₩1,000,000</p>
+                <p>₩{{.summary.income}}</p>
             </div>
             <div class="summary-item">
                 <h3>총 지출</h3>
-                <p>₩600,000</p>
+                <p>₩{{.summary.expense}}</p>
             </div>
             <div class="summary-item">
                 <h3>잔액</h3>
-                <p>₩400,000</p>
+                <p>₩{{.summary.balance}}</p>
             </div>
         </div>
     </section>
@@ -47,19 +47,12 @@
     <section class="categories">
         <h2>카테고리별 지출</h2>
         <div class="category-box">
+            {{range .categories}}
             <div class="category-item">
-                <h3>식비</h3>
-                <p>₩200,000</p>
+                <h3>{{.Name}}</h3>
+                <p>₩{{.Amount}}</p>
             </div>
-            <div class="category-item">
-                <h3>교통비</h3>
-                <p>₩100,000</p>
-            </div>
-            <div class="category-item">
-                <h3>엔터테인먼트</h3>
-                <p>₩50,000</p>
-            </div>
-            <!-- 더 많은 카테고리를 추가할 수 있습니다 -->
+            {{end}}
         </div>
     </section>
 
@@ -76,28 +69,15 @@
             </tr>
             </thead>
             <tbody>
+            {{range .transactions}}
             <tr>
-                <td>2024-05-20</td>
-                <td>점심 식사</td>
-                <td>식비</td>
-                <td>₩10,000</td>
-                <td>지출</td>
+                <td>{{.Date}}</td>
+                <td>{{.Description}}</td>
+                <td>{{.Category}}</td>
+                <td>₩{{.Amount}}</td>
+                <td>{{.Type}}</td>
             </tr>
-            <tr>
-                <td>2024-05-19</td>
-                <td>지하철 요금</td>
-                <td>교통비</td>
-                <td>₩2,500</td>
-                <td>지출</td>
-            </tr>
-            <tr>
-                <td>2024-05-18</td>
-                <td>영화 관람</td>
-                <td>엔터테인먼트</td>
-                <td>₩12,000</td>
-                <td>지출</td>
-            </tr>
-            <!-- 더 많은 거래 내역을 추가할 수 있습니다 -->
+            {{end}}
             </tbody>
         </table>
     </section>
